@@ -1,0 +1,17 @@
+#board {
+  position: relative;
+  width: 400px;
+  height: 400px;
+  background-color: cadetblue;
+  margin: auto;
+}
+.tile {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  cursor: pointer;
+  align-content: center;
+  background-color: aquamarine;
+  border-radius: 5px;
+}
