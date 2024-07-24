@@ -1,12 +1,60 @@
 import { Tile } from "./tile";
 
+export const tileSizeHeight = 44;
+export const tileSizeWidth = 52;
+
+export const secondRowOffset = 26;
+export const generalPadding = 10;
+
 export class Board {
   tiles: Tile[][] = [];
+  bombs = [0, 0, 0];
+  bombElement!: HTMLDivElement;
   constructor() {}
-  placeBoard(size: number, boardDiv: HTMLDivElement) {
-    boardDiv.style.width = 20 + 40 * size + "px";
-    boardDiv.style.height = 40 * size + "px";
+  renderBombDisplay() {
+    this.bombElement.innerHTML = `<p>
+<b>1:</b><span>${this.bombs[0]}</span>
+<b>2:</b><span>${this.bombs[1]}</span>
+<b>3:</b><span>${this.bombs[2]}</span>
+</p>`;
+  }
+  checkWin() {
+    let unInteracted = this.tiles.length ** 2;
+    for (let x = 0; x < this.tiles.length; x++) {
+      for (let y = 0; y < this.tiles[x].length; y++) {
+        const tile = this.tiles[x][y];
+        if (tile.isExplored || tile.isKnown || tile.bombValue > 0)
+          unInteracted--;
+      }
+    }
+    if (unInteracted === 0) {
+      let errors = 0;
+      for (let x = 0; x < this.tiles.length; x++) {
+        for (let y = 0; y < this.tiles[x].length; y++) {
+          const tile = this.tiles[x][y];
+          if (tile.bombValue > 0) {
+            if (tile.triggeredBomb) {
+              errors++;
+            } else tile.triggerBomb();
+          }
+        }
+      }
+      this.bombElement.innerHTML += `<h1>You Won! ${
+        errors === 0 ? "Perfect Score!" : `(but ${errors} exploded)`
+      }</h1>`;
+    }
+  }
+  placeBoard(
+    size: number,
+    boardDiv: HTMLDivElement,
+    bombElement: HTMLDivElement
+  ) {
+    this.bombElement = bombElement;
+    boardDiv.style.width =
+      generalPadding * 3 + secondRowOffset + tileSizeWidth * size + "px";
+    boardDiv.style.height = generalPadding * 4 + tileSizeHeight * size + "px";
     this.tiles = [];
+    this.bombs = [0, 0, 0];
     for (let x = 0; x < size; x++) {
       let row: Tile[] = [];
       for (let y = 0; y < size; y++) {
@@ -15,12 +63,15 @@ export class Board {
           random = 0;
         } else if (random < 0.95) {
           random = 1;
+          this.bombs[0]++;
         } else if (random < 0.985) {
           random = 2;
+          this.bombs[1]++;
         } else {
           random = 3;
+          this.bombs[2]++;
         }
-        const tile = new Tile({
+        const tile = new Tile(this, {
           position: { x, y },
           value: random,
         });
@@ -92,5 +143,6 @@ export class Board {
         current.neighborsNamed;
       }
     }
+    this.renderBombDisplay();
   }
 }

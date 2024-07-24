@@ -1,5 +1,13 @@
 "use strict";
 
+import {
+  Board,
+  generalPadding,
+  secondRowOffset,
+  tileSizeHeight,
+  tileSizeWidth,
+} from "./board";
+
 type TileSides =
   | "topLeft"
   | "topRight"
@@ -9,9 +17,11 @@ type TileSides =
   | "bottomRight";
 type Coordinate = { x: number; y: number };
 export class Tile {
+  board: Board;
   isExplored: boolean = false;
   isKnown: boolean = false;
-  isFlag: boolean = false;
+  triggeredBomb = false;
+  isFlag = 0;
   neighborsNamed: {
     [key in TileSides]: Tile | null;
   } = {
@@ -24,14 +34,19 @@ export class Tile {
   };
   neighborsArray: Tile[] = [];
   bombValue: number = 0;
-  element!: HTMLDivElement;
+  tileElement!: HTMLDivElement;
+  hexElement!: HTMLDivElement;
   position: Coordinate;
-  constructor(options: {
-    isExplored?: Tile["isExplored"];
-    neighborsNamed?: Tile["neighborsNamed"];
-    position?: Tile["position"];
-    value?: number;
-  }) {
+  constructor(
+    board: Board,
+    options: {
+      isExplored?: Tile["isExplored"];
+      neighborsNamed?: Tile["neighborsNamed"];
+      position?: Tile["position"];
+      value?: number;
+    }
+  ) {
+    this.board = board;
     if (options?.isExplored) this.isExplored = options.isExplored;
     if (options?.neighborsNamed) this.neighborsNamed = options.neighborsNamed;
     if (options?.value) this.bombValue = options.value;
@@ -45,14 +60,26 @@ export class Tile {
     if (!options?.position) throw new Error(`Position must be defined on Tile`);
     this.position = options.position;
   }
+  public triggerBomb() {
+    if (this.triggeredBomb) return;
+    this.triggeredBomb = true;
+    if (this.isFlag !== 0) {
+      this.board.bombs[this.isFlag - 1]++;
+      this.board.renderBombDisplay();
+      this.isFlag = 0;
+    }
+    this.hexElement.innerText = this.bombValue.toString();
+    this.hexElement.className = "hex-bomb";
+    this.board.bombs[this.bombValue - 1]--;
+    this.board.renderBombDisplay();
+  }
   public onClick(event?: MouseEvent) {
-    if (this.isFlag && event) return console.log("prevented Flag Click");
+    if (this.isFlag !== 0 && event) return console.log("prevented Flag Click");
     if (this.isExplored) return console.log("Clicked on known node");
     this.isExplored = true;
 
     if (this.bombValue !== 0) {
-      this.element.innerText = this.bombValue.toString();
-      this.element.style.backgroundColor = "red";
+      this.triggerBomb();
     } else {
       const surroundingRisk = this.neighborsArray.reduce<number>(
         (total, tile) => total + tile.bombValue,
@@ -62,21 +89,31 @@ export class Tile {
         this.neighborsArray.forEach((tile) => {
           if (!tile.isExplored && !tile.isKnown) tile.onEcho();
         });
-        this.element.innerText = "";
-        this.element.style.backgroundColor = "green";
+        this.hexElement.innerText = "";
+        this.hexElement.className = "hex-explored";
       } else {
-        this.element.innerText = surroundingRisk.toString();
-        this.element.style.backgroundColor = "#4fc14f";
+        this.hexElement.innerText = surroundingRisk.toString();
+        this.hexElement.className = "hex-risky";
       }
     }
+    this.board.checkWin();
     // this.paintNeighbors();
     // this.tagNeighbors();
   }
   public onContext(event?: MouseEvent) {
-    if (event) event.preventDefault();
-    if (this.isKnown) return;
-    this.isFlag = !this.isFlag;
-    this.element.innerText = this.isFlag ? "P" : "";
+    event?.preventDefault();
+    if (this.isKnown || this.isExplored) return;
+    this.isFlag = this.isFlag === 3 ? 0 : this.isFlag + 1;
+    if (this.isFlag === 0) {
+      this.board.bombs[this.board.bombs.length - 1]++;
+    } else if (this.isFlag === 1) {
+      this.board.bombs[0]--;
+    } else {
+      this.board.bombs[this.isFlag - 2]++;
+      this.board.bombs[this.isFlag - 1]--;
+    }
+    this.board.renderBombDisplay();
+    this.hexElement.innerText = this.isFlag === 0 ? "" : `${this.isFlag}P`;
   }
   public onEcho() {
     this.isKnown = true;
@@ -87,40 +124,47 @@ export class Tile {
     if (surroundingRisk === 0) {
       this.onClick();
     } else {
-      this.element.innerText = surroundingRisk.toString();
-      this.element.style.backgroundColor = "#4fc14f";
+      this.hexElement.innerText = surroundingRisk.toString();
+      this.hexElement.className = "hex-risky";
     }
   }
   private paintNeighbors() {
     this.neighborsArray.forEach((tile) => {
-      if (!tile.element) return;
-      tile.element.style.background = "red";
+      if (!tile.tileElement) return;
+      tile.tileElement.style.background = "red";
     });
   }
   private tagNeighbors() {
-    if (this.neighborsNamed.bottomLeft?.element)
-      this.neighborsNamed.bottomLeft.element.innerText = "BL";
-    if (this.neighborsNamed.bottomRight?.element)
-      this.neighborsNamed.bottomRight.element.innerText = "BR";
-    if (this.neighborsNamed.left?.element)
-      this.neighborsNamed.left.element.innerText = "L";
-    if (this.neighborsNamed.right?.element)
-      this.neighborsNamed.right.element.innerText = "R";
-    if (this.neighborsNamed.topLeft?.element)
-      this.neighborsNamed.topLeft.element.innerText = "TL";
-    if (this.neighborsNamed.topRight?.element)
-      this.neighborsNamed.topRight.element.innerText = "TR";
+    if (this.neighborsNamed.bottomLeft?.tileElement)
+      this.neighborsNamed.bottomLeft.tileElement.innerText = "BL";
+    if (this.neighborsNamed.bottomRight?.tileElement)
+      this.neighborsNamed.bottomRight.tileElement.innerText = "BR";
+    if (this.neighborsNamed.left?.tileElement)
+      this.neighborsNamed.left.tileElement.innerText = "L";
+    if (this.neighborsNamed.right?.tileElement)
+      this.neighborsNamed.right.tileElement.innerText = "R";
+    if (this.neighborsNamed.topLeft?.tileElement)
+      this.neighborsNamed.topLeft.tileElement.innerText = "TL";
+    if (this.neighborsNamed.topRight?.tileElement)
+      this.neighborsNamed.topRight.tileElement.innerText = "TR";
   }
   public spawnNode(boardDiv: HTMLDivElement) {
-    this.element = document.createElement("div");
-    this.element.addEventListener("click", (event) => this.onClick(event));
-    this.element.addEventListener("contextmenu", (event) =>
+    this.tileElement = document.createElement("div");
+    this.tileElement.addEventListener("click", (event) => this.onClick(event));
+    this.tileElement.addEventListener("contextmenu", (event) =>
       this.onContext(event)
     );
-    this.element.classList.add("tile");
-    this.element.style.top = 40 * this.position.y + "px";
-    this.element.style.left =
-      20 * (this.position.y % 2) + 40 * this.position.x + "px";
-    boardDiv.appendChild(this.element);
+    this.hexElement = document.createElement("div");
+    this.hexElement.className = "hex-unknown";
+    this.tileElement.appendChild(this.hexElement);
+    this.tileElement.classList.add("tile");
+    this.tileElement.style.top =
+      generalPadding + tileSizeHeight * this.position.y + "px";
+    this.tileElement.style.left =
+      generalPadding +
+      secondRowOffset * (this.position.y % 2) +
+      tileSizeWidth * this.position.x +
+      "px";
+    boardDiv.appendChild(this.tileElement);
   }
 }

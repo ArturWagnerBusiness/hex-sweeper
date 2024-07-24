@@ -1,17 +1,160 @@
+:root {
+  --tile-width: 52px;
+  --tile-width-half: 26px;
+  --tile-height: 30px;
+  --tile-height-half: 15px;
+  --tile-height-half-neg: -15px;
+  --background: rgb(95, 158, 160);
+  --background-unknown: rgb(70, 105, 105);
+  --background-explored: #62ff5d;
+  --background-risky: #3ba837;
+  --background-bomb: #cf683f;
+}
+body {
+  background-color: var(--background);
+}
 #board {
   position: relative;
   width: 400px;
   height: 400px;
-  background-color: cadetblue;
+  background-color: var(--background);
   margin: auto;
+}
+#board-bombs {
+  display: inline;
+  margin-left: 8px;
+}
+#board-bombs > p {
+  display: inline;
+}
+#board-bombs > p > span {
+  margin-right: 8px;
 }
 .tile {
   position: absolute;
-  width: 30px;
-  height: 30px;
   text-align: center;
   cursor: pointer;
   align-content: center;
-  background-color: aquamarine;
-  border-radius: 5px;
+}
+.hex-unknown:before {
+  content: " ";
+  width: 0;
+  height: 0;
+  border-bottom: var(--tile-height-half) solid var(--background-unknown);
+  border-left: var(--tile-width-half) solid transparent;
+  border-right: var(--tile-width-half) solid transparent;
+  position: absolute;
+  top: var(--tile-height-half-neg);
+  left: 0;
+}
+.hex-unknown {
+  margin-top: var(--tile-height-half);
+  margin-bottom: var(--tile-height-half);
+  width: var(--tile-width);
+  height: var(--tile-height);
+  background-color: var(--background-unknown);
+  position: relative;
+}
+.hex-unknown:after {
+  content: "";
+  left: 0;
+  width: 0;
+  position: absolute;
+  bottom: var(--tile-height-half-neg);
+  border-top: var(--tile-height-half) solid var(--background-unknown);
+  border-left: var(--tile-width-half) solid transparent;
+  border-right: var(--tile-width-half) solid transparent;
+}
+
+.hex-explored:before {
+  content: " ";
+  width: 0;
+  height: 0;
+  border-bottom: var(--tile-height-half) solid var(--background-explored);
+  border-left: var(--tile-width-half) solid transparent;
+  border-right: var(--tile-width-half) solid transparent;
+  position: absolute;
+  top: var(--tile-height-half-neg);
+  left: 0;
+}
+.hex-explored {
+  margin-top: var(--tile-height-half);
+  margin-bottom: var(--tile-height-half);
+  width: var(--tile-width);
+  width: var(--tile-width);
+  height: var(--tile-height);
+  background-color: var(--background-explored);
+  position: relative;
+}
+.hex-explored:after {
+  content: "";
+  left: 0;
+  width: 0;
+  position: absolute;
+  bottom: var(--tile-height-half-neg);
+  border-top: var(--tile-height-half) solid var(--background-explored);
+  border-left: var(--tile-width-half) solid transparent;
+  border-right: var(--tile-width-half) solid transparent;
+}
+
+.hex-risky:before {
+  content: " ";
+  width: 0;
+  height: 0;
+  border-bottom: var(--tile-height-half) solid var(--background-risky);
+  border-left: var(--tile-width-half) solid transparent;
+  border-right: var(--tile-width-half) solid transparent;
+  position: absolute;
+  top: var(--tile-height-half-neg);
+  left: 0;
+}
+.hex-risky {
+  margin-top: var(--tile-height-half);
+  margin-bottom: var(--tile-height-half);
+  width: var(--tile-width);
+  width: var(--tile-width);
+  height: var(--tile-height);
+  background-color: var(--background-risky);
+  position: relative;
+}
+.hex-risky:after {
+  content: "";
+  left: 0;
+  width: 0;
+  position: absolute;
+  bottom: var(--tile-height-half-neg);
+  border-top: var(--tile-height-half) solid var(--background-risky);
+  border-left: var(--tile-width-half) solid transparent;
+  border-right: var(--tile-width-half) solid transparent;
+}
+
+.hex-bomb:before {
+  content: " ";
+  width: 0;
+  height: 0;
+  border-bottom: var(--tile-height-half) solid var(--background-bomb);
+  border-left: var(--tile-width-half) solid transparent;
+  border-right: var(--tile-width-half) solid transparent;
+  position: absolute;
+  top: var(--tile-height-half-neg);
+  left: 0;
+}
+.hex-bomb {
+  margin-top: var(--tile-height-half);
+  margin-bottom: var(--tile-height-half);
+  width: var(--tile-width);
+  width: var(--tile-width);
+  height: var(--tile-height);
+  background-color: var(--background-bomb);
+  position: relative;
+}
+.hex-bomb:after {
+  content: "";
+  left: 0;
+  width: 0;
+  position: absolute;
+  bottom: var(--tile-height-half-neg);
+  border-top: var(--tile-height-half) solid var(--background-bomb);
+  border-left: var(--tile-width-half) solid transparent;
+  border-right: var(--tile-width-half) solid transparent;
 }

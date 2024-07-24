@@ -8,7 +8,8 @@ if (button)
     const board = new Board();
     const boardDiv = document.querySelector<HTMLDivElement>("#board");
     const boardInput = document.querySelector<HTMLInputElement>("#board-size");
+    const boardBombs = document.querySelector<HTMLDivElement>("#board-bombs");
 
-    if (boardDiv && boardInput)
-      board.placeBoard(parseInt(boardInput.value), boardDiv);
+    if (boardDiv && boardInput && boardBombs)
+      board.placeBoard(parseInt(boardInput.value), boardDiv, boardBombs);
   });
