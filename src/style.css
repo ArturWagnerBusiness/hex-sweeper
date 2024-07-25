@@ -48,125 +48,69 @@ body {
   cursor: pointer;
   align-content: center;
 }
-.hex-unknown:before {
+.hex:before {
   content: " ";
   width: 0;
   height: 0;
+  border-left: var(--tile-width-half) solid transparent;
+  border-right: var(--tile-width-half) solid transparent;
+  position: absolute;
+  top: var(--tile-height-half-neg);
+  left: 0;
+}
+.hex {
+  margin-top: var(--tile-height-half);
+  margin-bottom: var(--tile-height-half);
+  width: var(--tile-width);
+  height: var(--tile-height);
+  position: relative;
+}
+.hex:after {
+  content: "";
+  left: 0;
+  width: 0;
+  position: absolute;
+  bottom: var(--tile-height-half-neg);
+  border-left: var(--tile-width-half) solid transparent;
+  border-right: var(--tile-width-half) solid transparent;
+}
+.hex.unknown:before {
   border-bottom: var(--tile-height-half) solid var(--background-unknown);
-  border-left: var(--tile-width-half) solid transparent;
-  border-right: var(--tile-width-half) solid transparent;
-  position: absolute;
-  top: var(--tile-height-half-neg);
-  left: 0;
 }
-.hex-unknown {
-  margin-top: var(--tile-height-half);
-  margin-bottom: var(--tile-height-half);
-  width: var(--tile-width);
-  height: var(--tile-height);
+.hex.unknown {
   background-color: var(--background-unknown);
-  position: relative;
 }
-.hex-unknown:after {
-  content: "";
-  left: 0;
-  width: 0;
-  position: absolute;
-  bottom: var(--tile-height-half-neg);
+.hex.unknown:after {
   border-top: var(--tile-height-half) solid var(--background-unknown);
-  border-left: var(--tile-width-half) solid transparent;
-  border-right: var(--tile-width-half) solid transparent;
 }
 
-.hex-explored:before {
-  content: " ";
-  width: 0;
-  height: 0;
+.hex.explored:before {
   border-bottom: var(--tile-height-half) solid var(--background-explored);
-  border-left: var(--tile-width-half) solid transparent;
-  border-right: var(--tile-width-half) solid transparent;
-  position: absolute;
-  top: var(--tile-height-half-neg);
-  left: 0;
 }
-.hex-explored {
-  margin-top: var(--tile-height-half);
-  margin-bottom: var(--tile-height-half);
-  width: var(--tile-width);
-  width: var(--tile-width);
-  height: var(--tile-height);
+.hex.explored {
   background-color: var(--background-explored);
-  position: relative;
 }
-.hex-explored:after {
-  content: "";
-  left: 0;
-  width: 0;
-  position: absolute;
-  bottom: var(--tile-height-half-neg);
+.hex.explored:after {
   border-top: var(--tile-height-half) solid var(--background-explored);
-  border-left: var(--tile-width-half) solid transparent;
-  border-right: var(--tile-width-half) solid transparent;
 }
 
-.hex-risky:before {
-  content: " ";
-  width: 0;
-  height: 0;
+.hex.risky:before {
   border-bottom: var(--tile-height-half) solid var(--background-risky);
-  border-left: var(--tile-width-half) solid transparent;
-  border-right: var(--tile-width-half) solid transparent;
-  position: absolute;
-  top: var(--tile-height-half-neg);
-  left: 0;
 }
-.hex-risky {
-  margin-top: var(--tile-height-half);
-  margin-bottom: var(--tile-height-half);
-  width: var(--tile-width);
-  width: var(--tile-width);
-  height: var(--tile-height);
+.hex.risky {
   background-color: var(--background-risky);
-  position: relative;
 }
-.hex-risky:after {
-  content: "";
-  left: 0;
-  width: 0;
-  position: absolute;
-  bottom: var(--tile-height-half-neg);
+.hex.risky:after {
   border-top: var(--tile-height-half) solid var(--background-risky);
-  border-left: var(--tile-width-half) solid transparent;
-  border-right: var(--tile-width-half) solid transparent;
 }
 
-.hex-bomb:before {
-  content: " ";
-  width: 0;
-  height: 0;
+.hex.bomb:before {
   border-bottom: var(--tile-height-half) solid var(--background-bomb);
-  border-left: var(--tile-width-half) solid transparent;
-  border-right: var(--tile-width-half) solid transparent;
-  position: absolute;
-  top: var(--tile-height-half-neg);
-  left: 0;
 }
-.hex-bomb {
-  margin-top: var(--tile-height-half);
-  margin-bottom: var(--tile-height-half);
-  width: var(--tile-width);
-  width: var(--tile-width);
-  height: var(--tile-height);
+.hex.bomb {
   background-color: var(--background-bomb);
-  position: relative;
+  font-size: 20px;
 }
-.hex-bomb:after {
-  content: "";
-  left: 0;
-  width: 0;
-  position: absolute;
-  bottom: var(--tile-height-half-neg);
+.hex.bomb:after {
   border-top: var(--tile-height-half) solid var(--background-bomb);
-  border-left: var(--tile-width-half) solid transparent;
-  border-right: var(--tile-width-half) solid transparent;
 }

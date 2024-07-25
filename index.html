@@ -7,14 +7,14 @@
     <title>Vite + TS</title>
   </head>
   <body>
-    Width:<input id="board-size-w" value="35" /> Height:<input
+    Width:<input id="board-size-w" value="34" /> Height:<input
       id="board-size-h"
-      value="20"
+      value="19"
     />
     <button id="new-game">New Game</button>
     <div id="board-bombs"></div>
     <hr />
-    <div id="board"></div>
+    <div id="board" oncontextmenu="event.preventDefault()"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

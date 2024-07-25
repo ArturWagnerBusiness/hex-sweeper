@@ -8,6 +8,11 @@ import {
   tileSizeWidth,
 } from "./board";
 
+async function wait(durationMS: number) {
+  return new Promise((resolve, _reject) => {
+    setTimeout(resolve, durationMS);
+  });
+}
 type TileSides =
   | "topLeft"
   | "topRight"
@@ -16,6 +21,7 @@ type TileSides =
   | "bottomLeft"
   | "bottomRight";
 type Coordinate = { x: number; y: number };
+const bombString = ["①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨"];
 export class Tile {
   board: Board;
   isExplored: boolean = false;
@@ -68,17 +74,18 @@ export class Tile {
       this.board.renderBombDisplay();
       this.isFlag = 0;
     }
-    this.hexElement.innerText = this.bombValue.toString();
-    this.hexElement.className = "hex-bomb";
+    this.hexElement.innerText = bombString[this.bombValue - 1];
+    this.hexElement.className = "hex bomb";
     this.board.bombs[this.bombValue - 1]--;
     if (!preventRegisteringHit) this.board.hits++;
     this.board.renderBombDisplay();
   }
-  public onClick(event?: MouseEvent) {
+  public async onClick(event?: MouseEvent) {
     if (this.isFlag !== 0 && event) return console.log("prevented Flag Click");
     if (this.isExplored) return console.log("Clicked on known node");
-    this.isExplored = true;
+    if (event && this.board.processingEchos > 0) return;
 
+    this.isExplored = true;
     if (this.bombValue !== 0) {
       this.triggerBomb();
     } else {
@@ -87,22 +94,28 @@ export class Tile {
         0
       );
       if (surroundingRisk === 0) {
-        this.neighborsArray.forEach((tile) => {
-          if (!tile.isExplored && !tile.isKnown) tile.onEcho();
-        });
+        for (const tile of this.neighborsArray) {
+          if (!tile.isExplored && !tile.isKnown) {
+            this.board.processingEchos++;
+            tile.onEcho();
+          }
+        }
         this.hexElement.innerText = "";
-        this.hexElement.className = "hex-explored";
+        this.hexElement.className = "hex explored";
       } else {
         this.hexElement.innerText = surroundingRisk.toString();
-        this.hexElement.className = "hex-risky";
+        this.hexElement.className = "hex risky";
       }
     }
     this.board.checkWin();
+
     // this.paintNeighbors();
     // this.tagNeighbors();
   }
   public onContext(event?: MouseEvent) {
     event?.preventDefault();
+    if (event && this.board.processingEchos > 0) return;
+
     if (this.isKnown || this.isExplored) return;
     this.isFlag = this.isFlag === this.board.bombs.length ? 0 : this.isFlag + 1;
     if (this.isFlag === 0) {
@@ -114,20 +127,22 @@ export class Tile {
       this.board.bombs[this.isFlag - 1]--;
     }
     this.board.renderBombDisplay();
-    this.hexElement.innerText = this.isFlag === 0 ? "" : `${this.isFlag}P`;
+    this.hexElement.innerText = this.isFlag === 0 ? "" : `${this.isFlag} ᖰ`;
   }
-  public onEcho() {
+  public async onEcho() {
+    await wait(50);
     this.isKnown = true;
     const surroundingRisk = this.neighborsArray.reduce<number>(
       (total, tile) => total + tile.bombValue,
       0
     );
     if (surroundingRisk === 0) {
-      this.onClick();
+      await this.onClick();
     } else {
       this.hexElement.innerText = surroundingRisk.toString();
-      this.hexElement.className = "hex-risky";
+      this.hexElement.className = "hex risky";
     }
+    this.board.processingEchos--;
   }
   private paintNeighbors() {
     this.neighborsArray.forEach((tile) => {
@@ -156,7 +171,7 @@ export class Tile {
       this.onContext(event)
     );
     this.hexElement = document.createElement("div");
-    this.hexElement.className = "hex-unknown";
+    this.hexElement.className = "hex unknown";
     this.tileElement.appendChild(this.hexElement);
     this.tileElement.classList.add("tile");
     this.tileElement.style.top =

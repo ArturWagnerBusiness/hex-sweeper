@@ -1,10 +1,10 @@
 import { Tile } from "./tile";
 
-export const tileSizeHeight = 44;
-export const tileSizeWidth = 52;
+export const tileSizeHeight = 44 + 3;
+export const tileSizeWidth = 52 + 2;
 
 export const secondRowOffset = 26;
-export const generalPadding = 10;
+export const generalPadding = 0;
 function padZero(number: number): string {
   return `${number < 10 ? "0" : ""}${number}`;
 }
@@ -23,6 +23,7 @@ function bombColor(number: number) {
   return "white";
 }
 export class Board {
+  processingEchos = 0;
   tiles: Tile[][] = [];
   bombs = [0, 0, 0, 0, 0];
   hits = 0;
@@ -106,6 +107,7 @@ export class Board {
     boardDiv: HTMLDivElement,
     bombElement: HTMLDivElement
   ) {
+    this.processingEchos = 0;
     this.won = false;
     boardDiv.innerHTML = "";
     this.startTime = Date.now();
