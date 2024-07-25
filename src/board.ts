@@ -1,3 +1,4 @@
+import { Random } from "./mersenne-twister";
 import { Tile } from "./tile";
 
 export const tileSizeHeight = 44 + 3;
@@ -27,12 +28,18 @@ export class Board {
   tiles: Tile[][] = [];
   bombs = [0, 0, 0, 0, 0];
   hits = 0;
+  seed = 0;
   bombElement!: HTMLDivElement;
   startTime: number = 0;
   won = false;
   constructor() {}
   renderBombDisplay() {
     this.bombElement.innerHTML = `<p>
+    <span class='group' style="font-size: 14px;">
+      <span>
+        ${this.seed.toString()}
+      </span>
+    </span>
 <span class='group'>
   <span class='header'>1</span>
   <span class='value' style="color: ${bombColor(this.bombs[0])}">
@@ -104,6 +111,7 @@ export class Board {
   placeBoard(
     sizeWidth: number,
     sizeHeight: number,
+    seedNAN: number,
     boardDiv: HTMLDivElement,
     bombElement: HTMLDivElement
   ) {
@@ -119,10 +127,13 @@ export class Board {
     this.tiles = [];
     this.bombs = [0, 0, 0, 0, 0];
     this.hits = 0;
+    this.seed = Number.isNaN(seedNAN) ? new Date().getTime() : seedNAN;
+    const randomIterator = new Random(this.seed);
+
     for (let x = 0; x < sizeWidth; x++) {
       let row: Tile[] = [];
       for (let y = 0; y < sizeHeight; y++) {
-        let random = Math.random();
+        let random = randomIterator.nextNumber();
         if (random < 0.8) random = 0; // 10%
         else if (random < 0.9) this.bombs[(random = 1) - 1]++; // 5%
         else if (random < 0.95) this.bombs[(random = 2) - 1]++; // 2.5%

@@ -144,13 +144,13 @@ export class Tile {
     }
     this.board.processingEchos--;
   }
-  private paintNeighbors() {
+  public paintNeighbors() {
     this.neighborsArray.forEach((tile) => {
       if (!tile.tileElement) return;
       tile.tileElement.style.background = "red";
     });
   }
-  private tagNeighbors() {
+  public tagNeighbors() {
     if (this.neighborsNamed.bottomLeft?.tileElement)
       this.neighborsNamed.bottomLeft.tileElement.innerText = "BL";
     if (this.neighborsNamed.bottomRight?.tileElement)
