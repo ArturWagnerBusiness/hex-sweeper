@@ -1,8 +1,8 @@
 {
   "name": "hex-sweeper",
   "private": true,
-  "version": "0.0.0",
-  "homepage": "/",
+  "version": "1.0.0",
+  "homepage": "./",
   "type": "module",
   "scripts": {
     "dev": "vite",
