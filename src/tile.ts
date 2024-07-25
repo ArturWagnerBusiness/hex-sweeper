@@ -60,7 +60,7 @@ export class Tile {
     if (!options?.position) throw new Error(`Position must be defined on Tile`);
     this.position = options.position;
   }
-  public triggerBomb() {
+  public triggerBomb(preventRegisteringHit = false) {
     if (this.triggeredBomb) return;
     this.triggeredBomb = true;
     if (this.isFlag !== 0) {
@@ -71,6 +71,7 @@ export class Tile {
     this.hexElement.innerText = this.bombValue.toString();
     this.hexElement.className = "hex-bomb";
     this.board.bombs[this.bombValue - 1]--;
+    if (!preventRegisteringHit) this.board.hits++;
     this.board.renderBombDisplay();
   }
   public onClick(event?: MouseEvent) {
@@ -103,7 +104,7 @@ export class Tile {
   public onContext(event?: MouseEvent) {
     event?.preventDefault();
     if (this.isKnown || this.isExplored) return;
-    this.isFlag = this.isFlag === 3 ? 0 : this.isFlag + 1;
+    this.isFlag = this.isFlag === this.board.bombs.length ? 0 : this.isFlag + 1;
     if (this.isFlag === 0) {
       this.board.bombs[this.board.bombs.length - 1]++;
     } else if (this.isFlag === 1) {
