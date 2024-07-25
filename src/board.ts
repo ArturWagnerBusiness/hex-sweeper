@@ -25,11 +25,40 @@ function bombColor(number: number) {
   return "white";
 }
 function energyColor(number: number) {
-  if (number === 0) return "white";
-  if (number < 3) return "yellow";
-  if (number < 5) return "orange";
-  if (number < 11) return "red";
-  return "black";
+  switch (number) {
+    case 0:
+      return "rgb(255, 255, 255)";
+    case 1:
+      return "rgb(214, 227, 245)";
+    case 2:
+      return "rgb(179, 213, 245)";
+    case 3:
+      return "rgb(135, 195, 243)";
+    case 4:
+      return "rgb(58, 148, 221)";
+    case 5:
+      return "rgb(63, 111, 184)";
+    case 6:
+      return "rgb(63, 75, 184)";
+    case 7:
+      return "rgb(85, 63, 184)";
+    case 8:
+      return "rgb(130, 63, 184)";
+    case 9:
+      return "rgb(169, 80, 221)";
+    case 10:
+      return "rgb(221, 80, 214)";
+    case 11:
+      return "rgb(230, 63, 207)";
+    case 12:
+      return "rgb(228, 44, 151)";
+    case 13:
+      return "rgb(247, 27, 119)";
+    case 14:
+      return "rgb(243, 10, 69)";
+    default:
+      return "rgb(255, 136, 0)";
+  }
 }
 export class Board {
   processingEchos = 0;
@@ -49,10 +78,10 @@ export class Board {
     const bar = new Array(barSize).fill("█");
     const energyValue = Math.floor(this.energy / Board.energySplit);
     bar.push(...new Array(Board.energySplit - barSize).fill("░"));
-    bar[Math.floor(Board.energySplit / 2 - 1)] += energyValue;
+    //bar[Math.floor(Board.energySplit / 2 - 1)] += energyValue;
     this.energyElement.innerHTML = `<p>
 <span class='group'>
-  <span class='header'>Energy: </span>
+  <span class='header'>Energy: <b style='font-weight: 700;'>${energyValue}</b> </span>
   <span class='value' style="color: ${energyColor(energyValue)}">
     [${bar.join("")}]
   </span>

@@ -112,10 +112,11 @@ export class Tile {
         if (this.bombValue === 0) {
           await this.clickRevealNormal(event);
         } else if (this.isFlag >= this.bombValue) {
+          this.board.bombs[this.bombValue - 1]--;
           this.bombValue = 0;
           this.board.bombs[this.isFlag - 1]++;
-          this.board.renderBombDisplay();
           this.isFlag === 0;
+          this.board.renderBombDisplay();
           this.isExplored = true;
           this.clearNeighbors();
           for (const tile of this.neighborsArray) {
@@ -205,7 +206,7 @@ export class Tile {
       this.board.bombs[this.isFlag - 1]--;
     }
     this.board.renderBombDisplay();
-    this.hexElement.innerText = this.isFlag === 0 ? "" : `${this.isFlag} 🏳`;
+    this.hexElement.innerText = this.isFlag === 0 ? "" : `${this.isFlag} 🏁`;
   }
   public async onEcho() {
     await wait(50);
