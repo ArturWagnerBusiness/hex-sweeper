@@ -19,20 +19,46 @@ function parseTimeDuration(timeInSeconds: number) {
 }
 function bombColor(number: number) {
   if (number < 0) return "red";
-  if (number === 0) return "green";
-  if (number < 5) return "yellow";
+  if (number === 0) return "#3aecf4";
+  if (number < 6) return "lime";
+  if (number < 16) return "yellow";
   return "white";
+}
+function energyColor(number: number) {
+  if (number === 0) return "white";
+  if (number < 3) return "yellow";
+  if (number < 5) return "orange";
+  if (number < 11) return "red";
+  return "black";
 }
 export class Board {
   processingEchos = 0;
+  energy = 0;
+  static energySplit = 25;
   tiles: Tile[][] = [];
   bombs = [0, 0, 0, 0, 0];
   hits = 0;
   seed = 0;
   bombElement!: HTMLDivElement;
+  energyElement!: HTMLDivElement;
   startTime: number = 0;
   won = false;
   constructor() {}
+  renderEnergyDisplay() {
+    const barSize = this.energy % Board.energySplit;
+    const bar = new Array(barSize).fill("█");
+    const energyValue = Math.floor(this.energy / Board.energySplit);
+    bar.push(...new Array(Board.energySplit - barSize).fill("░"));
+    bar[Math.floor(Board.energySplit / 2 - 1)] += energyValue;
+    this.energyElement.innerHTML = `<p>
+<span class='group'>
+  <span class='header'>Energy: </span>
+  <span class='value' style="color: ${energyColor(energyValue)}">
+    [${bar.join("")}]
+  </span>
+</span>
+</p>`;
+  }
   renderBombDisplay() {
     this.bombElement.innerHTML = `<p>
     <span class='group' style="font-size: 14px;">
@@ -72,7 +98,7 @@ export class Board {
 </span>
 <span class='group'>
   <span class='header'>Hits</span>
-  <span class='value' style="color: ${this.hits > 0 ? "red" : "white"}">
+  <span class='value' style="color: ${bombColor(16 - this.hits)}">
     ${this.hits}
   </span>
 </span>
@@ -84,6 +110,9 @@ export class Board {
     for (let x = 0; x < this.tiles.length; x++) {
       for (let y = 0; y < this.tiles[x].length; y++) {
         const tile = this.tiles[x][y];
+        // tile.hexElement.innerText = `${tile.isExplored ? "E" : ""}${
+        //   tile.isKnown ? "K" : ""
+        // }${tile.bombValue}`;
         if (tile.isExplored || tile.isKnown || tile.bombValue > 0)
           unInteracted--;
       }
@@ -101,8 +130,8 @@ export class Board {
           }
         }
       }
-      this.bombElement.innerHTML += `<p>You Won! ${
-        errors === 0 ? "Perfect Score!" : `(but ${errors} exploded)`
+      this.bombElement.innerHTML += `<p>You Won${
+        errors === 0 ? "! Perfect Score!" : `? (${errors} exploded)`
       } | Time: ${parseTimeDuration(
         Math.floor((Date.now() - this.startTime) / 1000)
       )}</p>`;
@@ -113,13 +142,16 @@ export class Board {
     sizeHeight: number,
     seedNAN: number,
     boardDiv: HTMLDivElement,
-    bombElement: HTMLDivElement
+    bombElement: HTMLDivElement,
+    energyElement: HTMLDivElement
   ) {
     this.processingEchos = 0;
     this.won = false;
-    boardDiv.innerHTML = "";
     this.startTime = Date.now();
+    boardDiv.innerHTML = "";
     this.bombElement = bombElement;
+    energyElement.innerHTML = "";
+    this.energyElement = energyElement;
     boardDiv.style.width =
       generalPadding * 3 + secondRowOffset + tileSizeWidth * sizeWidth + "px";
     boardDiv.style.height =
@@ -127,7 +159,10 @@ export class Board {
     this.tiles = [];
     this.bombs = [0, 0, 0, 0, 0];
     this.hits = 0;
-    this.seed = Number.isNaN(seedNAN) ? new Date().getTime() : seedNAN;
+    const debug = seedNAN < 0;
+    this.seed = Number.isNaN(seedNAN)
+      ? new Date().getTime()
+      : Math.abs(seedNAN);
     const randomIterator = new Random(this.seed);
 
     for (let x = 0; x < sizeWidth; x++) {
@@ -145,6 +180,7 @@ export class Board {
           value: random,
         });
         tile.spawnNode(boardDiv);
+        if (debug) tile.hexElement.innerText = random > 0 ? "?" : "";
         // if (tile.bombValue !== 0) {
         //   tile.element.style.backgroundColor = "red";
         //   tile.element.innerText = tile.bombValue.toString();
@@ -213,5 +249,6 @@ export class Board {
       }
     }
     this.renderBombDisplay();
+    this.renderEnergyDisplay();
   }
 }

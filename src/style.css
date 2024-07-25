@@ -20,24 +20,29 @@ body {
   background-color: var(--background);
   margin: auto;
 }
-#board-bombs {
+#board-bombs,
+#board-energy {
   display: inline;
   margin-left: 8px;
 }
-#board-bombs > p {
+#board-bombs > p,
+#board-energy > p {
   display: inline;
 }
-#board-bombs > p .value {
+#board-bombs > p .value,
+#board-energy > p .value {
   font-weight: 500;
   font-size: 24px;
 }
-#board-bombs > p .group {
+#board-bombs > p .group,
+#board-energy > p .group {
   border: 1px black dotted;
   margin-right: 8px;
   font-size: 24px;
   padding: 0px 4px;
 }
-#board-bombs > p .header {
+#board-bombs > p .header,
+#board-energy > p .header {
   font-weight: 300;
   font-size: 20px;
   font-style: italic;
@@ -79,6 +84,7 @@ body {
 }
 .hex.unknown {
   background-color: var(--background-unknown);
+  color: white;
 }
 .hex.unknown:after {
   border-top: var(--tile-height-half) solid var(--background-unknown);

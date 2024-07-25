@@ -80,20 +80,100 @@ export class Tile {
     if (!preventRegisteringHit) this.board.hits++;
     this.board.renderBombDisplay();
   }
+  public updateExploredState() {
+    if (!this.isKnown) return;
+    const surroundingRisk = this.neighborsArray.reduce<number>(
+      (total, tile) => total + tile.bombValue,
+      0
+    );
+    if (surroundingRisk === 0) {
+      this.hexElement.innerText = "";
+      this.hexElement.className = "hex explored";
+    } else {
+      this.hexElement.innerText = surroundingRisk.toString();
+      this.hexElement.className = "hex risky";
+    }
+  }
+  public clearNeighbors() {
+    if (!this.isExplored) return;
+    this.isExplored = false;
+    for (const tile of this.neighborsArray) {
+      tile.clearNeighbors();
+    }
+  }
   public async onClick(event?: MouseEvent) {
-    if (this.isFlag !== 0 && event) return console.log("prevented Flag Click");
     if (this.isExplored) return console.log("Clicked on known node");
     if (event && this.board.processingEchos > 0) return;
+    if (this.isFlag !== 0 && event) {
+      const energyRequired = this.isFlag * Board.energySplit;
+      if (this.board.energy >= energyRequired) {
+        this.board.energy -= energyRequired;
+        this.board.renderEnergyDisplay();
+        if (this.bombValue === 0) {
+          await this.clickRevealNormal(event);
+        } else if (this.isFlag >= this.bombValue) {
+          this.bombValue = 0;
+          this.board.bombs[this.isFlag - 1]++;
+          this.board.renderBombDisplay();
+          this.isFlag === 0;
+          this.isExplored = true;
+          this.clearNeighbors();
+          for (const tile of this.neighborsArray) {
+            tile.updateExploredState();
+          }
+          const surroundingRisk = this.neighborsArray.reduce<number>(
+            (total, tile) => total + tile.bombValue,
+            0
+          );
+          if (surroundingRisk === 0) {
+            await this.onClick();
+          } else {
+            this.isKnown = true;
+            this.hexElement.innerText = surroundingRisk.toString();
+            this.hexElement.className = "hex risky";
+            for (const tile of this.neighborsArray) {
+              if (
+                tile.isExplored ||
+                tile.isKnown ||
+                this.neighborsArray.reduce<number>(
+                  (total, tile) => total + tile.bombValue,
+                  0
+                ) === 0
+              ) {
+                // console.log(tile, tile.isExplored, tile.isExplored);
+                this.board.processingEchos++;
+                tile.onEcho();
+              }
+            }
+          }
+        } else {
+          this.isExplored = true;
+          this.triggerBomb();
+        }
+      }
+    } else {
+      await this.clickRevealNormal(event);
+    }
+    this.board.checkWin();
 
-    this.isExplored = true;
+    // this.paintNeighbors();
+    // this.tagNeighbors();
+  }
+  public async clickRevealNormal(_event?: MouseEvent) {
     if (this.bombValue !== 0) {
       this.triggerBomb();
     } else {
+      if (!this.isKnown) {
+        this.board.energy++;
+        this.board.renderEnergyDisplay();
+      }
       const surroundingRisk = this.neighborsArray.reduce<number>(
         (total, tile) => total + tile.bombValue,
         0
       );
       if (surroundingRisk === 0) {
+        this.isExplored = true;
+        this.isKnown = true;
         for (const tile of this.neighborsArray) {
           if (!tile.isExplored && !tile.isKnown) {
             this.board.processingEchos++;
@@ -103,20 +183,18 @@ export class Tile {
         this.hexElement.innerText = "";
         this.hexElement.className = "hex explored";
       } else {
+        this.isKnown = true;
         this.hexElement.innerText = surroundingRisk.toString();
         this.hexElement.className = "hex risky";
       }
     }
-    this.board.checkWin();
-
-    // this.paintNeighbors();
-    // this.tagNeighbors();
   }
   public onContext(event?: MouseEvent) {
     event?.preventDefault();
     if (event && this.board.processingEchos > 0) return;
 
     if (this.isKnown || this.isExplored) return;
+    if (this.triggeredBomb) return;
     this.isFlag = this.isFlag === this.board.bombs.length ? 0 : this.isFlag + 1;
     if (this.isFlag === 0) {
       this.board.bombs[this.board.bombs.length - 1]++;
@@ -127,7 +205,7 @@ export class Tile {
       this.board.bombs[this.isFlag - 1]--;
     }
     this.board.renderBombDisplay();
-    this.hexElement.innerText = this.isFlag === 0 ? "" : `${this.isFlag} ᖰ`;
+    this.hexElement.innerText = this.isFlag === 0 ? "" : `${this.isFlag} 🏳`;
   }
   public async onEcho() {
     await wait(50);
@@ -139,6 +217,8 @@ export class Tile {
     if (surroundingRisk === 0) {
       await this.onClick();
     } else {
+      this.board.energy++;
+      this.board.renderEnergyDisplay();
       this.hexElement.innerText = surroundingRisk.toString();
       this.hexElement.className = "hex risky";
     }

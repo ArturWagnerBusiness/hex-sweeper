@@ -13,13 +13,23 @@ if (button)
     const boardInputHeight =
       document.querySelector<HTMLInputElement>("#board-size-h");
     const boardBombs = document.querySelector<HTMLDivElement>("#board-bombs");
+    const boardEnergy = document.querySelector<HTMLDivElement>("#board-energy");
 
-    if (seed && boardDiv && boardInputWidth && boardInputHeight && boardBombs)
+    if (
+      seed &&
+      boardDiv &&
+      boardInputWidth &&
+      boardInputHeight &&
+      boardBombs &&
+      boardEnergy
+    )
       board.placeBoard(
         parseInt(boardInputWidth.value),
         parseInt(boardInputHeight.value),
         parseInt(seed.value),
         boardDiv,
-        boardBombs
+        boardBombs,
+        boardEnergy
       );
+    else alert("Game failed to start! (DOM Element or Input is null)");
   });
