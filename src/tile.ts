@@ -110,6 +110,9 @@ export class Tile {
         this.board.energy -= energyRequired;
         this.board.renderEnergyDisplay();
         if (this.bombValue === 0) {
+          this.board.bombs[this.isFlag - 1]++;
+          this.isFlag === 0;
+          this.board.renderBombDisplay();
           await this.clickRevealNormal(event);
         } else if (this.isFlag >= this.bombValue) {
           this.board.bombs[this.bombValue - 1]--;
